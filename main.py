@@ -26,17 +26,34 @@ async def on_ready():
     global opening_times
     global closing_times
     global is_closed
+    global o1role
+    global o2role
+    global o3role
+    global o4role
+    global genrole
+    global ovfrole
     
     #   Modify here if anything changes
     channel_main = discord.utils.get(bot.get_all_channels(), name='copilot-open-hours')
     channel_sched = discord.utils.get(bot.get_all_channels(), name='todays-tutor-hours')
     channel_faq = discord.utils.get(bot.get_all_channels(), name='frequently-asked-questions')
+    
     #   Time in hours (military EST)
     opening_times = ["04:00", "04:00", "04:00", "04:00", "04:00", "05:00", "00:00"]
     closing_times = ["16:00", "16:00", "16:00", "16:00", "16:00", "09:00", "00:00"]
+    
     is_closed = False
+    
+    o1role = discord.utils.get(channel_main.guild.roles, name="Student - Online - 1")
+    o2role = discord.utils.get(channel_main.guild.roles, name="Student - Online - 2")
+    o3role = discord.utils.get(channel_main.guild.roles, name="Student - Online - 3")
+    o4role = discord.utils.get(channel_main.guild.roles, name="Student - Online - 4")
+    genrole = discord.utils.get(channel_main.guild.roles, name="Student - GenEd Course")
+    ovfrole = discord.utils.get(channel_main.guild.roles, name="Student - Overflow Room")
+    
+    
     await channel_main.send('Log-in successful')
-    #Don't touch
+    
 
 
 @bot.event
@@ -183,27 +200,46 @@ async def testFunc(ctx) :
 #     closing_times = ["21:00", "21:00", "21:00", "21:00", "21:00", "14:00", "00:00"]
 
 #     await ctx.channel.send('Initialization complete.')
-  
+
+async def remove_role_from_users(role):
+    global channel_main
+    for member in channel_main.guild.members:
+        if role in member.roles:
+            await member.remove_roles(role)
+
+            if member.voice is not None:
+                await member.move_to(None)
+
 @bot.command(name="open") 
 async def open_room(ctx) :
     channel = ctx.channel
-    if 'online' not in channel.name:
-        return
     await ctx.message.delete()
     global channel_main
 
     name = channel.name
-
+    roleToRemove = None
     if name == 'online-1':
-        pass
+        global o1role
+        roleToRemove = o1role
     elif name == 'online-2':
-        pass
+        global o2role
+        roleToRemove = o2role
     elif name == 'online-3':
-        pass
+        global o3role
+        roleToRemove = o3role
     elif name == 'online-4':
-        pass
+        global o4role
+        roleToRemove = o4role
+    elif name == 'gen-ed-courses':
+        global genrole
+        roleToRemove = genrole
+    elif name == 'overflow-room':
+        global ovfrole
+        roleToRemove = ovfrole
     else:
-        pass
+        return
+
+    await remove_role_from_users(roleToRemove)
     
     embed = discord.Embed(title="This room is now open for use.", description="The student associated with this room has been disconnected and this room is available.", color = discord.Color.blue())
 
