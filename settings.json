@@ -1,0 +1,28 @@
+[
+    {
+        "running": false
+    },
+    {
+        "o1-channel-name": "online-1",
+        "o2-channel-name": "online-2",
+        "o3-channel-name": "online-3",
+        "o4-channel-name": "online-4",
+        "of-channel-name": "overflow-room",
+        "ge-channel-name": "gen-ed-courses"
+    },
+    {
+        "o1-role-name": "Student - Online - 1",
+        "o2-role-name": "Student - Online - 2",
+        "o3-role-name": "Student - Online - 3",
+        "o4-role-name": "Student - Online - 4",
+        "ov-role-name": "Student - Overflow Room",
+        "ge-role-name": "Student - GenEd Course",
+        "tutor-role-name": "CoPilot Tutor",
+        "manager-role-name": "Manager"
+    },
+    {
+        "main-channel-name": "copilot-open-hours",
+        "faq-channel-name": "todays-tutor-hours",
+        "sched-channel-name": "frequently-asked-questions"
+    }
+]
