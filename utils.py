@@ -145,6 +145,16 @@ def TimeUntilClose(input_time, input_day, closing_times):
 
     return ((close_time - current_time - 1) * 60) + 60 - int(datetime.now().strftime("%S"))
 
+#Gets the amount of time in seconds until the next opening time
+def TimeUntilOpen(input_time, input_day, opening_times):
+    current_time = TimeToMinutes(input_time)
+    time_wait = 1440 - current_time
+    while(opening_times[input_day] == "00:00" and time_wait < 10080):
+        input_day = (input_day + 1) % 7
+        time_wait += 1440
+
+    time_wait += TimeToMinutes(opening_times[input_day])
+    return time_wait
 
 #Turns an array of strings into a single csv string
 # def ArrayToString(*args):

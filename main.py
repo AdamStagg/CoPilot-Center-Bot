@@ -8,6 +8,7 @@ import asyncio
 from datetime import datetime
 import utils
 from globals import Globals
+import gspread
 
 ## ------------ DEFINES ------------
 
@@ -20,6 +21,22 @@ bot = commands.Bot(command_prefix="$", intents=intents)
 token = os.environ['TOKEN']
 glob = Globals(bot)
 is_closed = False
+
+credentials = {
+    "installed": {
+        "type": os.environ['SA1'],
+        "project_id": os.environ['SA2'],
+        "private_key_id": os.environ['SA3'],
+        "private_key": os.environ['SA4'],
+        "client_email": os.environ['SA5'],
+        "client_id": os.environ['SA6'],
+        "auth_uri": os.environ['SA7'],
+        "token_uri": os.environ['SA8'],
+        "auth_provider_x509_cert_url": os.environ['SA9'],
+        "client_x509_cert_url": os.environ['SA10']
+    }
+}
+
 
 # ------------ BOT COMMANDS ------------
 
@@ -103,6 +120,9 @@ async def on_ready():
     
     glob.init_channels()
     glob.init_roles()
+
+    #sa = gspread.oauth_from_dict(credentials)
+    #sh = sa.open("CoPilot Tutor Tracker")
     
     glob.opening_times = utils.ReadTimesFromFile("OpeningTimes.csv")
     glob.closing_times = utils.ReadTimesFromFile("ClosingTimes.csv")
@@ -135,26 +155,6 @@ async def on_member_join(member):
     else:    
         await glob.channel_main.send(text)
 
-
-
-
-def TimeUntilOpen(input_time, input_day):
-    opening_times = glob.opening_times
-
-    extra = 0
-    while (opening_times[input_day] == "00:00"):
-        extra += 24 * 60
-        input_day = (input_day + 1) % 7
-        
-    current_time = utils.TimeToMinutes(input_time)
-    open_time = utils.TimeToMinutes(opening_times[input_day]) + extra
-    
-    if (current_time < open_time):
-        return (open_time - current_time)
-
-    return utils.TimeToMinutes(opening_times[(input_day + 1) % 7]) - current_time + 1440
-
- 
 async def Run_Schedule():
     time, day = utils.UTCtoEST(datetime.now().strftime("%H:%M"), datetime.today().weekday())
 
@@ -169,9 +169,9 @@ async def Run_Schedule():
             await close_coro()
         else:
             if (int(time[:2]) < int(glob.opening_times[day][:2])):
-                time = TimeUntilOpen(time, day) - 1
+                time = utils.TimeUntilOpen(time, day, glob.opening_times) - 1
             else:
-                time = TimeUntilOpen(time, (day + 1) % 7) - 1
+                time = utils.TimeUntilOpen(time, (day + 1) % 7, glob.opening_times) - 1
             seconds = 60 - int(datetime.now().strftime("%S"))
             time = (time * 60) + seconds
             print("Time after calculation: " + str(time/60))
